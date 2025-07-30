@@ -3,25 +3,22 @@ package com.example.wordsolve;
 import javafx.geometry.Pos;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
-
 
 /**
  * Custom HBox extension class to encapsulate all the little textboxes.
  * ...**/
-public class InputHBox extends HBox
+public class InputHBox extends WordSolveHBox
 {
     private static final int NumberOfTextboxes = 5;
     private final TextField[] fields = new TextField[NumberOfTextboxes];
 
     public InputHBox() {
-        setSpacing(10);
-        setAlignment(Pos.CENTER);
+        super();
 
         for (int i = 0; i < NumberOfTextboxes; i++) {
             TextField tf = new TextField();
-            tf.setPrefWidth(40);
+            tf.setPrefWidth(WIDTH);
             tf.setFont(Font.font(20));
             tf.setAlignment(Pos.CENTER);
 
@@ -72,13 +69,5 @@ public class InputHBox extends HBox
             sb.append(tf.getText());
         }
         return sb.toString();
-    }
-
-    /** Clears all fields */
-    public void clear() {
-        for (TextField tf : fields) {
-            tf.clear();
-        }
-        if (fields.length > 0) fields[0].requestFocus();
     }
 }

@@ -1,15 +1,13 @@
 package com.example.wordsolve;
 
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
+import javafx.scene.control.Button;
 import javafx.scene.text.Font;
 
-public class LettersHBox extends HBox
+public class LettersHBox extends WordSolveHBox
 {
-    private static final int NumberOfTextboxes = 5;
-    private final Label[] fields = new Label[NumberOfTextboxes];
+    private static final int NumberOfLetters = 5;
+    private final Button[] fields = new Button[NumberOfLetters];
 
     /** Fills the lower viewing tiles with letters. **/
     public void UpdateWord(char[] letters)
@@ -20,25 +18,18 @@ public class LettersHBox extends HBox
         }
     }
 
-    public LettersHBox() {
-        setSpacing(10);
-        setAlignment(Pos.CENTER);
+    public LettersHBox()
+    {
+        super();
 
-        for (int i = 0; i < NumberOfTextboxes; i++) {
-            Label label = new Label();
-            label.setPrefWidth(40);
-            label.setFont(Font.font(20));
-            label.setAlignment(Pos.CENTER);
-            fields[i] = label;
-            getChildren().add(label);
+        // TODO: this is the same in both InputHBox and LettersHBox so put in super.
+        for (int i = 0; i < NumberOfLetters; i++) {
+            Button singleLetter = new Button();
+            singleLetter.setPrefWidth(WIDTH);
+            singleLetter.setFont(Font.font(20));
+            singleLetter.setAlignment(Pos.CENTER);
+            fields[i] = singleLetter;
+            getChildren().add(singleLetter);
         }
-    }
-
-    /** Clears all fields */
-    public void clear() {
-        for (Label label : fields) {
-            label.setText("");
-        }
-        if (fields.length > 0) fields[0].requestFocus();
     }
 }

@@ -29,16 +29,11 @@ public class MainController {
 
     private char[] generateLetterTiles()
     {
-        return "12345".toCharArray();
+        return "htdiw".toCharArray();
     }
 
     // Get the whole word typed.
     public String getCode() {
         return inputBoxContainer.getCode();
-    }
-
-    // Clear ALL textboxes.
-    public void clearCode() {
-        inputBoxContainer.clear();
     }
 }
