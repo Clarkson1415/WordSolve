@@ -5,6 +5,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 
@@ -17,16 +18,61 @@ public class MainController {
 
     private InputHBox inputBoxContainer;
     private LettersHBox LetterContainer;
-    private char[] currentLetterTiles;
 
-    private void updateWord()
+    private void changeLetterTiles()
     {
-        LetterContainer.UpdateWord(currentLetterTiles);
+        LetterContainer.CreateNewLetterTiles();
+        inputBoxContainer.UpdateAllowedLetters(LetterContainer.getCurrentTiles());
+    }
+
+    /// Refresh letter tiles and empty typed inputs.
+    private void resetTiles()
+    {
+        this.inputBoxContainer.clearLetters();
+        this.changeLetterTiles();
+    }
+
+    private void resetRedraw()
+    {
+        redrawsRemaining = 3;
+        drawsLeftLabel.setText(String.format("Redraws remaining %d / 3", redrawsRemaining));
+    }
+
+    private int redrawsRemaining = 3;
+    private final Label drawsLeftLabel = new Label(String.format("Redraws remaining %d / 3", redrawsRemaining));
+
+    private void OnTypedWordUpdated(String newCode)
+    {
+        System.out.println("Updated input code: " + newCode);
+
+        char newLetter = newCode.charAt(newCode.length() - 1);
+        this.LetterContainer.RemoveTile(newLetter);
+        this.inputBoxContainer.UpdateAllowedLetters(this.LetterContainer.getCurrentTiles());
+    }
+
+    private void OnEnterPressed()
+    {
+        if (!this.inputBoxContainer.isWordComplete())
+        {
+            return;
+        }
+
+        System.out.println("Enter was pressed!");
+        this.resetRedraw();
+        this.resetTiles();
     }
 
     @FXML
     public void initialize()
     {
+        pane.setOnKeyPressed(event ->
+        {
+            if (event.getCode() == KeyCode.ENTER)
+            {
+                OnEnterPressed();
+            }
+        });
+
         verticalBox.setAlignment(Pos.CENTER);
         // space between children
         verticalBox.setSpacing(20);
@@ -35,11 +81,14 @@ public class MainController {
         inputBoxContainer = new InputHBox();
         verticalBox.getChildren().add(inputBoxContainer);
 
+        inputBoxContainer.getCurrentTypedWordProperty().addListener((obs, oldCode, newCode) -> {
+            OnTypedWordUpdated(newCode);
+        });
+
         // Letter tiles
         LetterContainer = new LettersHBox();
         verticalBox.getChildren().add(LetterContainer);
-        currentLetterTiles = generateLetterTiles();
-        updateWord();
+        changeLetterTiles();
 
         // Add to main window pane layout
         pane.getChildren().add(verticalBox);
@@ -63,13 +112,30 @@ public class MainController {
 
         StackPane.setMargin(bottomVBox, new Insets(10));
 
-        // Add redraw button
-        Button redraw = new Button("Redraw");
-        redraw.setFont(Font.font(15));
-        bottomVBox.getChildren().add(redraw);
+        // Add redraw button and text.
+        HBox redrawSection = new HBox();
+        redrawSection.setSpacing(10);
+        redrawSection.setAlignment(Pos.CENTER);
+
+        // redraws remaining text.
+        drawsLeftLabel.setFont(Font.font(15));
+        redrawSection.getChildren().add(drawsLeftLabel);
+
+        // Redraw button text.
+        Button redrawButton = new Button("Redraw");
+        redrawButton.setFont(Font.font(15));
+        redrawButton.setOnAction(event ->
+        {
+            OnRedrawButtonClicked();
+        });
+
+        redrawSection.getChildren().add(redrawButton);
+
+        // add redraw button and text to button vbox.
+        bottomVBox.getChildren().add(redrawSection);
 
         // Add tutorial text
-        Label tutorial = new Label("Enter to complete word.");
+        Label tutorial = new Label("Enter to complete word. Then also get more redraws.");
         tutorial.setFont(Font.font(15));
         bottomVBox.getChildren().add(tutorial);
 
@@ -77,13 +143,16 @@ public class MainController {
         pane.getChildren().add(bottomVBox);
     }
 
-    private char[] generateLetterTiles()
+    private void OnRedrawButtonClicked()
     {
-        return "htdiw".toCharArray();
-    }
+        if (redrawsRemaining == 0)
+        {
+            return;
+        }
 
-    // Get the whole word typed.
-    public String getCode() {
-        return inputBoxContainer.getCode();
+        changeLetterTiles();
+        redrawsRemaining -= 1;
+
+        drawsLeftLabel.setText(String.format("Redraws remaining %d / 3", redrawsRemaining));
     }
 }
