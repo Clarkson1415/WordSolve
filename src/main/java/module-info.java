@@ -10,6 +10,7 @@ module com.example.wordsolve {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
+    requires jdk.compiler;
 
     opens com.example.wordsolve to javafx.fxml;
     exports com.example.wordsolve;

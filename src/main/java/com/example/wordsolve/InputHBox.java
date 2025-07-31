@@ -1,5 +1,6 @@
 package com.example.wordsolve;
 
+import com.sun.source.tree.TryTree;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.geometry.Pos;
@@ -155,17 +156,41 @@ public class InputHBox extends WordSolveHBox
         }
         else
         {
+            if (ignoreNextTrigger)
+            {
+                ignoreNextTrigger = false;
+                return;
+            }
+
+            // if typed 1 invalid letter then set to empty.
             if (!IsCharacterAllowed(character))
             {
                 System.out.println("INVALID LETTER.");
 
-                // If letter already in the last textbox set just single char. The same one.
-                tf.setText(String.valueOf(tf.getText().charAt(0)));
+                // if typed 1 invalid letter remove it.
+                if (tf.getText().length() == 1)
+                {
+                    tf.setText("");
+                }
+                else // if typed another invalid letter while another letter already in the box.
+                {
+                    var firstValue = Character.toString(tf.getText().charAt(0));
+                    ignoreNextTrigger = true;
+                    tf.setText(firstValue);
+                }
 
                 return;
             }
 
-            tf.setText(String.valueOf(newVal.charAt(0)));
+            if (tf.getText().length() == 2)
+            {
+                var firstValue = Character.toString(tf.getText().charAt(0));
+                ignoreNextTrigger = true;
+                tf.setText(firstValue);
+                return;
+            }
+
+            // tf.setText(Character.toString(newVal.charAt(0)));
             letterAdded.set(null); // reset first so the event fires.
             letterAdded.set(tf.getText());
         }
@@ -178,6 +203,9 @@ public class InputHBox extends WordSolveHBox
 
         previousLetters = getAllCurrentTypedLetters();
     }
+
+    /** If last slot has letter then is typed in should set the letter to the current ignore input. Then event is called again. Then Ignore that event.**/
+    boolean ignoreNextTrigger = false;
 
     private void onBackspace(int textBoxCounter)
     {

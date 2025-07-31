@@ -94,7 +94,7 @@ public class MainController {
 
         inputBoxContainer.OnLetterAdded().addListener((obs, oldCode, letter) ->
         {
-            if (letter == null){
+            if (letter == null || letter.isEmpty()){
                 return;
             }
 
@@ -103,7 +103,7 @@ public class MainController {
 
         inputBoxContainer.OnLetterRemoved().addListener((obs, oldCode, letterRemoved) ->
         {
-            if (letterRemoved == null){
+            if (letterRemoved == null || letterRemoved.isEmpty()){
                 return;
             }
 
