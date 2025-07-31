@@ -26,6 +26,7 @@ public class HelloApplication extends Application {
         Scene scene = new Scene(mainViewPane, 320, 240);
         stage.setTitle("EG Top Window Title.");
         stage.setScene(scene);
+        stage.setFullScreen(true);
         stage.show();
     }
 

@@ -19,9 +19,12 @@ public class MainController {
     private InputHBox inputBoxContainer;
     private LettersHBox LetterContainer;
 
+    // How many tiles can the user pick from. This is only for initialising for now. TODO: be able to change tile number at runtime.
+    private int tileNumber = 10;
+
     private void changeLetterTiles()
     {
-        LetterContainer.CreateNewLetterTiles();
+        LetterContainer.CreateNewLetterTiles(tileNumber);
         inputBoxContainer.UpdateAllowedLetters(LetterContainer.getCurrentTiles());
     }
 
@@ -41,13 +44,21 @@ public class MainController {
     private int redrawsRemaining = 3;
     private final Label drawsLeftLabel = new Label(String.format("Redraws remaining %d / 3", redrawsRemaining));
 
-    private void OnTypedWordUpdated(String newCode)
+    private void OnLetterAdded(char newCode)
     {
         System.out.println("Updated input code: " + newCode);
 
-        char newLetter = newCode.charAt(newCode.length() - 1);
-        this.LetterContainer.RemoveTile(newLetter);
-        this.inputBoxContainer.UpdateAllowedLetters(this.LetterContainer.getCurrentTiles());
+        this.LetterContainer.DisableTile(newCode);
+        var allowed = this.LetterContainer.getCurrentTiles();
+        this.inputBoxContainer.UpdateAllowedLetters(allowed);
+    }
+
+    private void OnLetterRemoved(char letterRemoved)
+    {
+        System.out.println("letter removed called. in main controller.");
+        this.LetterContainer.EnableTile(letterRemoved);
+        var allowed = this.LetterContainer.getCurrentTiles();
+        this.inputBoxContainer.UpdateAllowedLetters(allowed);
     }
 
     private void OnEnterPressed()
@@ -81,12 +92,26 @@ public class MainController {
         inputBoxContainer = new InputHBox();
         verticalBox.getChildren().add(inputBoxContainer);
 
-        inputBoxContainer.getCurrentTypedWordProperty().addListener((obs, oldCode, newCode) -> {
-            OnTypedWordUpdated(newCode);
+        inputBoxContainer.OnLetterAdded().addListener((obs, oldCode, letter) ->
+        {
+            if (letter == null){
+                return;
+            }
+
+            OnLetterAdded(letter.charAt(0));
+        });
+
+        inputBoxContainer.OnLetterRemoved().addListener((obs, oldCode, letterRemoved) ->
+        {
+            if (letterRemoved == null){
+                return;
+            }
+
+            OnLetterRemoved(letterRemoved.charAt(0));
         });
 
         // Letter tiles
-        LetterContainer = new LettersHBox();
+        LetterContainer = new LettersHBox(tileNumber);
         verticalBox.getChildren().add(LetterContainer);
         changeLetterTiles();
 

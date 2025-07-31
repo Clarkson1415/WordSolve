@@ -20,11 +20,19 @@ public class InputHBox extends WordSolveHBox
     private final TextField[] fields = new TextField[NumberOfTextboxes];
     private char[] allowedLetters;
 
-    private final StringProperty currentTypedWord = new SimpleStringProperty("");
+    private String previousLetters;
 
-    public StringProperty getCurrentTypedWordProperty()
+    private StringProperty letterRemoved = new SimpleStringProperty("");
+    private StringProperty letterAdded = new SimpleStringProperty("");
+
+    public StringProperty OnLetterRemoved()
     {
-        return currentTypedWord;
+        return letterRemoved;
+    }
+
+    public StringProperty OnLetterAdded()
+    {
+        return letterAdded;
     }
 
     /** Returns the combined code as a String */
@@ -76,7 +84,7 @@ public class InputHBox extends WordSolveHBox
 
     private TextField getLeftMostEmptySlot()
     {
-        TextField emptyField = null;
+        TextField emptyField = fields[fields.length - 1];
         for (TextField field: fields)
         {
             if (field.getText().isEmpty())
@@ -106,50 +114,97 @@ public class InputHBox extends WordSolveHBox
         // Limit input length to 1 and move 1 right when value is input.
         tf.textProperty().addListener((obs, oldVal, newVal) ->
         {
-            if (newVal.isEmpty()){
+            OnTextBoxChanged(tf, newVal, textBoxCounter);
+        });
+
+        // Handle backspace.
+        tf.setOnKeyPressed(event ->
+        {
+            if (event.getCode() != KeyCode.BACK_SPACE){
                 return;
             }
 
-            // If a value was pasted that was > 1 trim characters
-            if (newVal.length() > 1) {
-                tf.setText(newVal.substring(0, 1));
-            }
+            onBackspace(textBoxCounter);
+            event.consume();
+        });
 
-            // If value is not valid empty checkbox
-            if (!IsCharacterAllowed(newVal.charAt(0)))
+        fields[textBoxCounter] = tf;
+        getChildren().add(tf);
+    }
+
+    private void OnTextBoxChanged(TextField tf, String newVal, int textBoxCounter)
+    {
+        if (newVal.isEmpty()){
+            return;
+        }
+
+        var character = newVal.charAt(newVal.length() - 1);
+
+        // If value is not valid empty checkbox
+        if (textBoxCounter < NumberOfTextboxes - 1)
+        {
+            if (!IsCharacterAllowed(character))
             {
                 System.out.println("INVALID LETTER.");
                 tf.setText("");
                 return;
             }
 
-            // If value is valid we should remove letter tile and move to the next.
-            // TODO:
-            System.out.println("todo remove tile " + newVal);
-            currentTypedWord.set(getAllCurrentTypedLetters());
-
-            // If the textbox has been updated and the next textbox exists move cursor
-            if (!newVal.isEmpty() && textBoxCounter < NumberOfTextboxes - 1)
+            letterAdded.set(null); // reset first so the event fires.
+            letterAdded.set(tf.getText());
+        }
+        else
+        {
+            if (!IsCharacterAllowed(character))
             {
-                fields[textBoxCounter + 1].requestFocus();
-            }
-        });
+                System.out.println("INVALID LETTER.");
 
-        // Handle backspace.
-        tf.setOnKeyPressed(event -> {
-            if (event.getCode() != KeyCode.BACK_SPACE){
+                // If letter already in the last textbox set just single char. The same one.
+                tf.setText(String.valueOf(tf.getText().charAt(0)));
+
                 return;
             }
 
-            if (tf.getText().isEmpty() && textBoxCounter > 0){
-                fields[textBoxCounter - 1].requestFocus();
-                fields[textBoxCounter - 1].clear();
-                event.consume();
-            }
-        });
+            tf.setText(String.valueOf(newVal.charAt(0)));
+            letterAdded.set(null); // reset first so the event fires.
+            letterAdded.set(tf.getText());
+        }
 
-        fields[textBoxCounter] = tf;
-        getChildren().add(tf);
+        // If the textbox has been updated and the next textbox exists move cursor
+        if (textBoxCounter < NumberOfTextboxes - 1)
+        {
+            fields[textBoxCounter + 1].requestFocus();
+        }
+
+        previousLetters = getAllCurrentTypedLetters();
+    }
+
+    private void onBackspace(int textBoxCounter)
+    {
+        var lastTextBox = fields.length - 1;
+        if (textBoxCounter == lastTextBox)
+        {
+            if (previousLetters.length() == fields.length - 1)
+            {
+                TextField prev = fields[textBoxCounter - 1];
+                prev.clear();
+                prev.requestFocus();
+            }
+        }
+        else if (textBoxCounter > 0)
+        {
+            TextField prev = fields[textBoxCounter - 1];
+            prev.clear();
+            prev.requestFocus();
+
+        }
+
+        letterRemoved.set(null);
+        if (!previousLetters.isEmpty()) {
+            letterRemoved.set(previousLetters.substring(previousLetters.length() - 1));
+        }
+
+        previousLetters = getAllCurrentTypedLetters();
     }
 
     private boolean IsCharacterAllowed(char newChar)

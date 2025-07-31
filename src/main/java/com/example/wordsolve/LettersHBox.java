@@ -8,33 +8,32 @@ import java.util.Random;
 
 public class LettersHBox extends WordSolveHBox
 {
-    private static final int NumberOfLetters = 5;
-    private final Button[] fields = new Button[NumberOfLetters];
+    private Button[] tileButtons;
 
     public char[] getCurrentTiles()
     {
-        char[] letterTiles = new char[fields.length];
+        char[] letterTiles = new char[tileButtons.length];
 
-        for (int i = 0; i < fields.length; i++)
+        for (int i = 0; i < tileButtons.length; i++)
         {
-            if (fields[i].isDisabled())
+            if (tileButtons[i].isDisabled())
             {
                 continue;
             }
 
-            letterTiles[i] = fields[i].getText().charAt(0);
+            letterTiles[i] = tileButtons[i].getText().charAt(0);
         }
 
         return letterTiles;
     }
 
-    private char[] generateLetterTiles()
+    private char[] generateLetterTiles(int tileNumber)
     {
         String alphabet = "abcdefghijklmnopqrstuvwxyz";
-        char[] result = new char[5];
+        char[] result = new char[tileNumber];
         Random random = new Random();
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < tileNumber; i++) {
             int index = random.nextInt(alphabet.length());
             result[i] = alphabet.charAt(index);
         }
@@ -43,23 +42,38 @@ public class LettersHBox extends WordSolveHBox
     }
 
     /** Fills the lower viewing tiles with letters. **/
-    public void CreateNewLetterTiles()
+    public void CreateNewLetterTiles(int numberOfTiles)
     {
-        char[] letters = generateLetterTiles();
+        char[] letters = generateLetterTiles(numberOfTiles);
+
+        this.createTileButtons(numberOfTiles);
 
         for (int i = 0; i < letters.length; i++)
         {
-            fields[i].setText(Character.toString(letters[i]));
-            fields[i].setDisable(false);
+            tileButtons[i].setText(Character.toString(letters[i]));
+            tileButtons[i].setDisable(false);
         }
     }
 
-    public void RemoveTile(char letter)
+    public void EnableTile(char letter)
     {
         // Find First letter matching
-        for (Button b: this.fields)
+        for (Button b: this.tileButtons)
         {
-            if (b.getText().charAt(0) == letter)
+            if ((b.getText().charAt(0) == letter) && (b.isDisabled()))
+            {
+                b.setDisable(false);
+                return;
+            }
+        }
+    }
+
+    public void DisableTile(char letter)
+    {
+        // Find First letter matching
+        for (Button b: this.tileButtons)
+        {
+            if ((b.getText().charAt(0) == letter) && !b.isDisabled())
             {
                 b.setDisable(true);
                 return;
@@ -67,18 +81,27 @@ public class LettersHBox extends WordSolveHBox
         }
     }
 
-    public LettersHBox()
+    public LettersHBox(int numberOfTiles)
     {
         super();
 
-        // TODO: this is the same in both InputHBox and LettersHBox so put in super.
-        for (int i = 0; i < NumberOfLetters; i++) {
+        this.createTileButtons(numberOfTiles);
+    }
+
+    private void createTileButtons(int number)
+    {
+        getChildren().clear();
+        tileButtons = new Button[number];
+
+        for (int i = 0; i < number; i++)
+        {
             Button singleLetter = new Button();
             singleLetter.setPrefWidth(WIDTH);
             singleLetter.setFont(Font.font(20));
             singleLetter.setAlignment(Pos.CENTER);
-            fields[i] = singleLetter;
+            tileButtons[i] = singleLetter;
             getChildren().add(singleLetter);
         }
     }
+
 }
