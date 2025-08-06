@@ -1,16 +1,11 @@
 package com.example.wordsolve;
 
-import com.sun.source.tree.TryTree;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.geometry.Pos;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-
-import java.util.Arrays;
-import java.util.Collections;
 
 /**
  * Custom HBox extension class to encapsulate all the little textboxes.
