@@ -9,7 +9,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 
-public class MainController {
+public class InputController {
 
     @FXML
     private StackPane pane;  // match fx:id in your FXML
