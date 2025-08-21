@@ -1,0 +1,62 @@
+.button.game-button {
+    -fx-background-color: linear-gradient(to bottom, #3d251e, #5b3e31);
+    -fx-text-fill: white;
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 10 20 10 20;
+}
+
+.button.game-button:hover {
+    -fx-background-color: blue;
+}
+
+.button.game-button:pressed {
+    -fx-background-color: deepskyblue;
+}
+
+.button.game-button:disabled {
+    -fx-background-color: lightblue;
+}
+
+.tile {
+    -fx-background-color: beige;
+    -fx-border-color: black;
+    -fx-border-width: 2;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+
+.tile:hover {
+    -fx-background-color: lightblue;
+}
+
+.tile:pressed {
+    -fx-background-color: deepskyblue;
+}
+
+.tile-letter-label {
+    -fx-font-size: 24px;
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+}
+
+.tile-score-label {
+    -fx-font-size: 8px;
+    -fx-text-fill: black;
+}
+
+.empty-tile-slot {
+    -fx-opacity: 0.5;
+    -fx-background-color: lightgray;
+    -fx-border-color: black;
+    -fx-border-width: 2;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+
+.score{
+    -fx-font-size: 32px;
+    -fx-text-fill: black;
+}

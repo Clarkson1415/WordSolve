@@ -24,6 +24,8 @@ public class WordSolveApplication extends Application {
                 Color.rgb(128, 171, 232), CornerRadii.EMPTY, Insets.EMPTY)));
 
         Scene scene = new Scene(mainViewPane, 320, 240);
+        scene.getStylesheets().add(getClass().getResource("/com/example/wordsolve/application.css").toExternalForm());
+
         stage.setTitle("EG Top Window Title.");
         stage.setScene(scene);
         stage.setFullScreen(true);

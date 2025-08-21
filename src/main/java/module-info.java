@@ -11,6 +11,8 @@ module com.example.wordsolve {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
     requires jdk.compiler;
+    requires com.fasterxml.jackson.databind;
+    requires java.desktop;
 
     opens com.example.wordsolve to javafx.fxml;
     exports com.example.wordsolve;
