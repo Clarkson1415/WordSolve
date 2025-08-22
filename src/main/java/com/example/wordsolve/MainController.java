@@ -1,6 +1,7 @@
 package com.example.wordsolve;
 
 import javafx.animation.SequentialTransition;
+import javafx.animation.Transition;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -147,6 +148,11 @@ public class MainController {
             tt.setOnFinished(e -> AddToRawScorePoints(t.getTileScore()));
         }
 
+        // time delay between tiles finished scoring and the jokers being scored so user has time to like take in
+        // information i guess.
+        var smallTimeDelay = new TranslateTransition(Duration.seconds(1));
+        tilePopupTransitions.getChildren().add(smallTimeDelay);
+
         tilePopupTransitions.setOnFinished(e -> ScoreJokers());
         // Play all transitions in order
         tilePopupTransitions.play();
@@ -158,9 +164,8 @@ public class MainController {
 
         // For ()
         // for each joker add to sequence animation then play animtion
-
-        st.play();
         st.setOnFinished(e -> OnRawScoringFinished());
+        st.play();
     }
 
     /// Happens after letter tiles and jokers have been applied to the score. This will be the raw score getting
@@ -202,6 +207,7 @@ public class MainController {
             tileRow.getChildren().add(tile);
 
             tile.setOnMouseClicked(e -> OnTilePressed(tile));
+            ParticleEffects.ShowDustEffect(tile);
         }
     }
 

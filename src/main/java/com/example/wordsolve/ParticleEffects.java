@@ -4,7 +4,6 @@ import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
@@ -15,40 +14,56 @@ public class ParticleEffects
 {
     public static void ShowDustEffect(Tile tile)
     {
-        var x = tile.getBoundsInLocal().getCenterX();
-        var y = tile.getBoundsInLocal().getCenterY();
-
-        System.out.printf("x, y = %f, %f", x, y);
         Random rand = new Random();
 
-        for (int i = 0; i < 50; i++)
-        {
-            var randomOffsetX = rand.nextDouble(-1, 1) * tile.getTileSize();
-            var randomOffsetY = rand.nextDouble(-1, 1) * tile.getTileSize();
+        var width = tile.getTileSize();
+        var height = tile.getTileSize();
 
-            System.out.printf("random offset x = %f", randomOffsetX);
-            System.out.printf("random offset y = %f", randomOffsetY);
+        for (int i = 0; i < 50; i++) {
+            double x, y;
 
-            double puffCentreX = x + randomOffsetX;
-            double puffCentreY = y + randomOffsetY;
+            int edge = rand.nextInt(4); // 0=top,1=right,2=bottom,3=left
+            switch (edge) {
+                case 0: // top
+                    x = rand.nextDouble() * width;
+                    y = 0;
+                    break;
+                case 1: // right
+                    x = width;
+                    y = rand.nextDouble() * height;
+                    break;
+                case 2: // bottom
+                    x = rand.nextDouble() * width;
+                    y = height;
+                    break;
+                case 3: // left
+                    x = 0;
+                    y = rand.nextDouble() * height;
+                    break;
+                default:
+                    x = width / 2;
+                    y = height / 2;
+            }
 
-            Circle c = new Circle(puffCentreX, puffCentreY, 5, Color.SANDYBROWN);
+            Circle c = new Circle(x, y, 5, Color.SANDYBROWN);
             tile.getChildren().addFirst(c);
 
-            // Animate outward a little
-            TranslateTransition tt = new TranslateTransition(Duration.seconds(0.6), c);
-            tt.setByX(rand.nextDouble(-1, 1) * tile.getTileSize() / 2);
-            tt.setByY(rand.nextDouble(-1, 1) * tile.getTileSize() / 2);
+            var animateTime = 0.5;
 
-            ScaleTransition st = new ScaleTransition(Duration.seconds(0.6), c);
-            st.setFromX(1.0);
-            st.setToX(2.0);
-            st.setFromY(1.0);
-            st.setToY(2.0);
+            // animate puff outward
+            TranslateTransition tt = new TranslateTransition(Duration.seconds(animateTime), c);
+            tt.setByX(rand.nextDouble(-1, 1) * width);
+            tt.setByY(rand.nextDouble(-1, 1) * height);
 
-            FadeTransition ft = new FadeTransition(Duration.seconds(0.6), c);
+            FadeTransition ft = new FadeTransition(Duration.seconds(animateTime), c);
             ft.setFromValue(0.8);
-            ft.setToValue(0.0);
+            ft.setToValue(0);
+
+            ScaleTransition st = new ScaleTransition(Duration.seconds(animateTime), c);
+            st.setFromX(2.0);
+            st.setToX(1.0);
+            st.setFromY(2.0);
+            st.setToY(1.0);
 
             ParallelTransition pt = new ParallelTransition(c, tt, st, ft);
             pt.setOnFinished(e -> tile.getChildren().remove(c));

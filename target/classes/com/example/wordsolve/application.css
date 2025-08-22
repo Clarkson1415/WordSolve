@@ -24,20 +24,18 @@
     -fx-background-color: lightblue;
 }
 
-.tile {
-    -fx-background-color: beige;
-    -fx-border-color: black;
-    -fx-border-width: 2;
-    -fx-background-radius: 12;
-    -fx-border-radius: 8;
+.tile-background{
+    -fx-fill: beige;
+    -fx-arc-width: 10;     /* horizontal corner radius */
+    -fx-arc-height: 10;    /* vertical corner radius */
 }
 
-.tile:hover {
-    -fx-background-color: lightblue;
+.tile-background:hover {
+    -fx-fill: lightblue;
 }
 
-.tile:pressed {
-    -fx-background-color: deepskyblue;
+.tile-background:pressed {
+    -fx-fill: deepskyblue;
 }
 
 .tile-letter-label {

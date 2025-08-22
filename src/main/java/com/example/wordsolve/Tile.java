@@ -23,17 +23,23 @@ public class Tile extends StackPane
 
     public Tile(char letter)
     {
+        var bg = new Rectangle(TILE_SIZE, TILE_SIZE);
+        bg.getStyleClass().add("tile-background");
+        this.getChildren().add(bg);
+
         // Layout stuff. I would prefer to put this in css or directly in the fxml.
         letterLabel = new Label();
         letterLabel.getStyleClass().add("tile-letter-label"); // CSS for label
+        letterLabel.setMouseTransparent(true);
         getChildren().add(letterLabel);
 
-        getStyleClass().add("tile"); // CSS for tile background
+//      getStyleClass().add("tile"); // CSS for tile background
         setPrefSize(TILE_SIZE, TILE_SIZE);
 
         scoreLabel = new Label();
         // tile-score-label
         scoreLabel.getStyleClass().add("tile-score-label");
+        scoreLabel.setMouseTransparent(true);
         getChildren().add(scoreLabel);
 
         this.setLetter(letter);
