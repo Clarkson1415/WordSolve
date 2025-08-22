@@ -1,7 +1,6 @@
 package com.example.wordsolve;
 
 import javafx.animation.SequentialTransition;
-import javafx.animation.Transition;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -73,6 +72,14 @@ public class MainController {
     /// Number of tiles that the 'hand' is increased by.
     private int handTilesModifier = 0;
 
+    private int roundScorePoints = 0;
+
+    /// Will be the level score to beat to win level.
+    private int scoreRequiredToWin = 0;
+
+    @FXML
+    private Label scoreToBeatText;
+
     @FXML
     public void initialize()
     {
@@ -83,6 +90,8 @@ public class MainController {
         particleEffectLayer = new Pane();
         this.pane.getChildren().add(particleEffectLayer);
         particleEffectLayer.setMouseTransparent(true);
+
+        this.IncrementScoreToBeat(50);
     }
 
     private void OnTilePressed(Tile tilePressed)
@@ -124,9 +133,7 @@ public class MainController {
         }
 
         wordPlaysRemaining--;
-
         var tilePopUpDuration = 0.2;
-
         SequentialTransition tilePopupTransitions = new SequentialTransition();
 
         for (var t : this.rowToHoldSelectedTiles.GetTiles())
@@ -164,31 +171,54 @@ public class MainController {
 
         // For ()
         // for each joker add to sequence animation then play animtion
-        st.setOnFinished(e -> OnRawScoringFinished());
+        st.setOnFinished(e -> OnWordAndJokerScoringFinished());
         st.play();
     }
 
     /// Happens after letter tiles and jokers have been applied to the score. This will be the raw score getting
     /// added to the current Level score.
-    private void OnRawScoringFinished()
+    private void OnWordAndJokerScoringFinished()
     {
-        // TODO: start the sequence of animations for adding score multipliers from the jokers/upgrades
-
-        // TODO: then put this AFTER jokers scored
         AddToRoundScore(this.rawScorePoints);
         this.rawScorePoints = 0;
 
-        /// TODO: check when play animation has finished if no redraws left determine if we have won or not.
+        if (this.roundScorePoints > scoreRequiredToWin)
+        {
+            // Won
+            System.out.println("Won");
+            IncrementScoreToBeat(50);
+            RefillHand();
+            return;
+        }
+
+        if (this.wordPlaysRemaining == 0)
+        {
+            System.out.println("Lost");
+            return;
+        }
+
+        // if not won or lost continue next turn.
+        RefillHand();
+    }
+
+    private void IncrementScoreToBeat(int amount)
+    {
+        this.scoreRequiredToWin += amount;
+        this.scoreToBeatText.setText(String.format("Score to beat %d", this.scoreRequiredToWin));
+    }
+
+    private void RefillHand()
+    {
         this.drawNewTiles(this.rowToHoldSelectedTiles.getCurrentWord().length());
         this.rowToHoldSelectedTiles.clearTiles();
         UpdatePlayButton();
         UpdateRedrawButton();
     }
 
-    private boolean CheckWinConditiions()
+
+    private void CheckLevelConditions()
     {
-        //TODO if round score > score required.
-        return false;
+
     }
 
     private final Random random = new Random();
@@ -246,8 +276,6 @@ public class MainController {
         this.rawScorePoints += add;
         this.rawScoreText.setText(String.format("%d", this.rawScorePoints));
     }
-
-    private int roundScorePoints = 0;
 
     private void AddToRoundScore(int add)
     {
