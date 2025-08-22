@@ -8,6 +8,10 @@
     -fx-padding: 10 20 10 20;
 }
 
+.background-scene{
+    -fx-background-image: url("wood.jpg");
+}
+
 .button.game-button:hover {
     -fx-background-color: blue;
 }
@@ -24,7 +28,7 @@
     -fx-background-color: beige;
     -fx-border-color: black;
     -fx-border-width: 2;
-    -fx-background-radius: 8;
+    -fx-background-radius: 12;
     -fx-border-radius: 8;
 }
 
@@ -52,11 +56,11 @@
     -fx-background-color: lightgray;
     -fx-border-color: black;
     -fx-border-width: 2;
-    -fx-background-radius: 8;
+    -fx-background-radius: 12;
     -fx-border-radius: 8;
 }
 
 .score{
     -fx-font-size: 32px;
-    -fx-text-fill: black;
+    -fx-text-fill: white;
 }

@@ -1,7 +1,5 @@
 package com.example.wordsolve;
 
-import com.almasb.fxgl.core.collection.Array;
-import com.fasterxml.jackson.databind.introspect.TypeResolutionContext;
 import javafx.scene.layout.HBox;
 
 import java.util.ArrayList;
@@ -31,6 +29,7 @@ public class TileSlotRowHBox extends HBox
         }
     }
 
+    /// Gets the letter tiles submitted.
     public List<Tile> GetTiles()
     {
         var tiles = new ArrayList<Tile>();

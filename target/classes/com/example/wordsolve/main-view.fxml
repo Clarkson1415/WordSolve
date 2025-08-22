@@ -8,16 +8,42 @@
 <?import com.example.wordsolve.TileSlotRowHBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.geometry.Insets?>
-<StackPane fx:id="pane" xmlns="http://javafx.com/javafx/8.0.171"
+<?import org.controlsfx.dialog.WizardPane?>
+<StackPane styleClass="background-scene" fx:id="pane" xmlns="http://javafx.com/javafx/8.0.171"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.example.wordsolve.MainController">
 
-    <!-- Score -->
-    <Label fx:id="currentScoreTest" text="Score = 0" styleClass="score" StackPane.alignment="CENTER_LEFT">
+    <!-- Points to beat -->
+    <Label  text="Score to beat: 300" styleClass="score" StackPane.alignment="TOP_LEFT">
         <StackPane.margin>
             <Insets top="10" left="15" right="0" bottom="0"/>
         </StackPane.margin>
     </Label>
+
+    <!-- Score -->
+    <VBox StackPane.alignment="CENTER_LEFT" alignment="CENTER_LEFT">
+        <StackPane.margin>
+            <Insets top="10" left="15" right="0" bottom="0"/>
+        </StackPane.margin>
+
+        <Label fx:id="roundScoreText" text="Round Score: 0" styleClass="score" >
+        </Label>
+
+        <HBox>
+            <Label fx:id="rawScoreText" text="0" styleClass="score" >
+            </Label>
+
+            <Label text=" x " styleClass="score" >
+            </Label>
+
+            <Label  text="1" styleClass="score" >
+            </Label>
+        </HBox>
+
+
+    </VBox>
+
+
 
     <!-- StackPane.alignment="CENTER" controls the alignment of the VBox -->
     <!-- alignment="CENTER" controls the alignment of the children inside the layout element. In this case the VBox's buttons. -->
@@ -25,8 +51,8 @@
 
         <!-- The players Boons -->
 
-        <!-- The empty word tiles to fill. -->
-        <TileSlotRowHBox fx:id="rowOfEmptySlotsToFill" spacing="10" StackPane.alignment="CENTER" alignment="CENTER">
+        <!-- Row to hold selected tiles before being played. -->
+        <TileSlotRowHBox fx:id="rowToHoldSelectedTiles" spacing="10" StackPane.alignment="CENTER" alignment="CENTER">
         </TileSlotRowHBox>
 
         <!-- The players tiles -->

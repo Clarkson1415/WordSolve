@@ -4,6 +4,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 /// Letter tiles.
 public class Tile extends StackPane
@@ -13,6 +15,11 @@ public class Tile extends StackPane
 
     // base letter score
     private final Label scoreLabel;
+
+    public double getTileSize()
+    {
+        return this.TILE_SIZE;
+    }
 
     public Tile(char letter)
     {
