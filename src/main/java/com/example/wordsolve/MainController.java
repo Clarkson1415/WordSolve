@@ -1,7 +1,6 @@
 package com.example.wordsolve;
 
 import javafx.animation.SequentialTransition;
-import javafx.animation.Transition;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -9,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.util.Duration;
 
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -73,9 +73,10 @@ public class MainController {
     /// Number of tiles that the 'hand' is increased by.
     private int handTilesModifier = 0;
 
+    DatabaseConnection database;
+
     @FXML
-    public void initialize()
-    {
+    public void initialize() throws SQLException {
         System.out.println("Initialsed");
         rowToHoldSelectedTiles.initialiseSlots(this.defaultHandTiles);
         setupLevel();
@@ -83,6 +84,17 @@ public class MainController {
         particleEffectLayer = new Pane();
         this.pane.getChildren().add(particleEffectLayer);
         particleEffectLayer.setMouseTransparent(true);
+
+        // https://github.com/CloudBytes-Academy/English-Dictionary-Open-Source?
+        database = new DatabaseConnection();
+
+        try{
+            database.testConnection();
+        }
+        catch (Exception e)
+        {
+            System.out.println("issue with db");
+        }
     }
 
     private void OnTilePressed(Tile tilePressed)
@@ -111,18 +123,37 @@ public class MainController {
     private boolean isWordValid()
     {
         // TODO implement SQL dictionary here.
+        var isWordInDictionary = false;
+
+        // TODO cleanup. also add a little UI to show errors if found.
+        try
+        {
+            isWordInDictionary = this.database.CheckWordExists(rowToHoldSelectedTiles.getCurrentWord());
+        }
+        catch (Exception e)
+        {
+            System.out.println("issue with database");
+        }
+
+        if (isWordInDictionary)
+        {
+            try
+            {
+                var definition = this.database.GetWordDefinition(rowToHoldSelectedTiles.getCurrentWord());
+                System.out.println(definition);
+            }
+            catch (Exception e){
+                System.out.println("unable to def def");
+            }
+        }
+
         var isWordEmpty = this.rowToHoldSelectedTiles.getCurrentWord().isEmpty();
-        return !isWordEmpty;
+        return !isWordEmpty && isWordInDictionary;
     }
 
     @FXML
     private void OnClickPlayWord()
     {
-        if (!isWordValid()){
-            System.out.println("TODO visual illegal word feedback");
-            return;
-        }
-
         wordPlaysRemaining--;
 
         var tilePopUpDuration = 0.2;
@@ -236,6 +267,7 @@ public class MainController {
     {
         this.playButton.setText(String.format("Play Word. %d remaining", this.wordPlaysRemaining));
         var playButtonActive = this.wordPlaysRemaining > 0 && !this.rowToHoldSelectedTiles.getCurrentWord().isEmpty();
+        playButtonActive = playButtonActive && this.isWordValid();
         this.playButton.setDisable(!playButtonActive);
     }
 

@@ -13,6 +13,7 @@ module com.example.wordsolve {
     requires jdk.compiler;
     requires com.fasterxml.jackson.databind;
     requires java.desktop;
+    requires java.sql;
 
     opens com.example.wordsolve to javafx.fxml;
     exports com.example.wordsolve;

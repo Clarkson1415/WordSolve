@@ -45,6 +45,7 @@ public class TileSlotRowHBox extends HBox
         return tiles;
     }
 
+    /// Gets curernt word in lowercase.
     public String getCurrentWord()
     {
         var word = new StringBuilder();
@@ -56,7 +57,7 @@ public class TileSlotRowHBox extends HBox
             }
         }
 
-        return word.toString();
+        return word.toString().toLowerCase();
     }
 
     public boolean HasSpaceForAnotherLetter()
