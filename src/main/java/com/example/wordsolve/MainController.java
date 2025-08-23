@@ -299,6 +299,7 @@ public class MainController {
     {
         this.playButton.setText(String.format("Play Word. %d remaining", this.wordPlaysRemaining));
         var playButtonActive = this.wordPlaysRemaining > 0 && !this.rowToHoldSelectedTiles.getCurrentWord().isEmpty();
+        playButtonActive = playButtonActive && isWordValid();
         this.playButton.setDisable(!playButtonActive);
     }
 
