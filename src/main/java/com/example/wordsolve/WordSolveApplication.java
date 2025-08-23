@@ -13,9 +13,23 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class WordSolveApplication extends Application {
+public class WordSolveApplication extends Application
+{
+    private Stage stage;
+
+    private static WordSolveApplication instance;
+
+    public WordSolveApplication() {
+        instance = this;
+    }
+
+    public static WordSolveApplication getInstance() {
+        return instance;
+    }
+
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage stage) throws IOException
+    {
         FXMLLoader fxmlLoader = new FXMLLoader(WordSolveApplication.class.getResource("main-view.fxml"));
 
         Pane mainViewPane = fxmlLoader.load();
@@ -30,9 +44,22 @@ public class WordSolveApplication extends Application {
         stage.setScene(scene);
         stage.setFullScreen(true);
         stage.show();
+        this.stage = stage;
     }
 
-    public static void main(String[] args) {
+    public void switchScene(String fxmlPath) throws IOException
+    {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(fxmlPath));
+        Pane newRoot = fxmlLoader.load();
+
+        Scene newScene = new Scene(newRoot);
+        newScene.getStylesheets().add(getClass().getResource("/com/example/wordsolve/application.css").toExternalForm());
+
+        stage.setScene(newScene);
+    }
+
+    public static void main(String[] args)
+    {
         launch();
     }
 }

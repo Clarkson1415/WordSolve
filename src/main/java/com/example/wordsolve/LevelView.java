@@ -1,9 +1,9 @@
 package com.example.wordsolve;
 
 import javafx.animation.SequentialTransition;
-import javafx.animation.Transition;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
@@ -12,13 +12,10 @@ import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class MainController {
+public class LevelView {
 
     @FXML
     private StackPane pane;  // match fx:id in your FXML
-
-    @FXML
-    private Pane particleEffectLayer;
 
     @FXML
     /// Row for the players letter tiles in hand.
@@ -47,10 +44,10 @@ public class MainController {
     private ArrayList<Tile> tiles = new ArrayList<>();
 
     /// Redraws remaining in this level
-    private int redrawsRemaining = 4;
+    private int redrawsRemaining;
 
     /// Redraws the play starts with at the start of a run. This never changes.
-    private final int defaultRedrawAmount = 4;
+    private final int defaultRedrawAmount = 10;
 
     /// Redraws added or - if a shop items is bought.
     private int redrawModifier;
@@ -90,11 +87,7 @@ public class MainController {
         rowToHoldSelectedTiles.initialiseSlots(this.defaultHandTiles);
         setupLevel();
 
-        particleEffectLayer = new Pane();
-        this.pane.getChildren().add(particleEffectLayer);
-        particleEffectLayer.setMouseTransparent(true);
-
-        this.IncrementScoreToBeat(50);
+        this.IncrementScoreToBeat(2);
 
         // https://github.com/CloudBytes-Academy/English-Dictionary-Open-Source?
         database = new DatabaseConnection();
@@ -133,7 +126,6 @@ public class MainController {
 
     private boolean isWordValid()
     {
-        // TODO implement SQL dictionary here.
         var isWordInDictionary = false;
 
         // TODO cleanup. also add a little UI to show errors if found.
@@ -194,6 +186,7 @@ public class MainController {
         tilePopupTransitions.getChildren().add(smallTimeDelay);
 
         tilePopupTransitions.setOnFinished(e -> ScoreJokers());
+
         // Play all transitions in order
         tilePopupTransitions.play();
     }
@@ -203,30 +196,52 @@ public class MainController {
         SequentialTransition st = new SequentialTransition();
 
         // For ()
-        // for each joker add to sequence animation then play animtion
+        // for each joker add to sequence animation then play animation.
         st.setOnFinished(e -> OnWordAndJokerScoringFinished());
         st.play();
     }
 
-    /// Happens after letter tiles and jokers have been applied to the score. This will be the raw score getting
-    /// added to the current Level score.
+    /// Happens after letter tiles and jokers have been applied to the score.
     private void OnWordAndJokerScoringFinished()
     {
         AddToRoundScore(this.rawScorePoints);
-        this.rawScorePoints = 0;
 
-        if (this.roundScorePoints > scoreRequiredToWin)
+        // small wait between adding to round score and moving to the next level state. i.e. won or not.
+        var timeDelay = new TranslateTransition(Duration.seconds(1));
+        timeDelay.setOnFinished(e -> this.OnAfterUpdatedPlayersLevelScore());
+        timeDelay.play();
+    }
+
+    private void OnAfterUpdatedPlayersLevelScore()
+    {
+        this.resetRawScorePoints();
+
+        if (this.roundScorePoints > scoreRequiredToWin) // Won
         {
-            // Won
             System.out.println("Won");
-            IncrementScoreToBeat(50);
+            IncrementScoreToBeat(2);
+            setRoundScoreTo0();
             RefillHand();
+
+            // TODO use different level controller
+            var app = WordSolveApplication.getInstance();
+
+            try
+            {
+                app.switchScene("shop-view.fxml");
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
             return;
         }
 
         if (this.wordPlaysRemaining == 0)
         {
             System.out.println("Lost");
+            // TODO lost info.
             return;
         }
 
@@ -246,12 +261,6 @@ public class MainController {
         this.rowToHoldSelectedTiles.clearTiles();
         UpdatePlayButton();
         UpdateRedrawButton();
-    }
-
-
-    private void CheckLevelConditions()
-    {
-
     }
 
     private final Random random = new Random();
@@ -309,6 +318,18 @@ public class MainController {
     {
         this.rawScorePoints += add;
         this.rawScoreText.setText(String.format("%d", this.rawScorePoints));
+    }
+
+    /// Set to 0.
+    private void resetRawScorePoints(){
+        this.rawScorePoints = 0;
+        this.rawScoreText.setText(String.format("%d", this.rawScorePoints));
+    }
+
+    private void setRoundScoreTo0()
+    {
+        this.roundScorePoints = 0;
+        this.roundScoreText.setText(String.format("Round Score: %d", this.roundScorePoints));
     }
 
     private void AddToRoundScore(int add)
