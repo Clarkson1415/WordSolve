@@ -14,7 +14,7 @@
            fx:controller="com.example.wordsolve.MainController">
 
     <!-- Points to beat -->
-    <Label  text="Score to beat: 300" styleClass="score" StackPane.alignment="TOP_LEFT">
+    <Label fx:id="scoreToBeatText" styleClass="score" StackPane.alignment="TOP_LEFT">
         <StackPane.margin>
             <Insets top="10" left="15" right="0" bottom="0"/>
         </StackPane.margin>
@@ -39,11 +39,7 @@
             <Label  text="1" styleClass="score" >
             </Label>
         </HBox>
-
-
     </VBox>
-
-
 
     <!-- StackPane.alignment="CENTER" controls the alignment of the VBox -->
     <!-- alignment="CENTER" controls the alignment of the children inside the layout element. In this case the VBox's buttons. -->
