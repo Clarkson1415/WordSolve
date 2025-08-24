@@ -62,3 +62,9 @@
     -fx-font-size: 32px;
     -fx-text-fill: white;
 }
+
+.shop-heading{
+    -fx-font-size: 45px;
+    -fx-text-fill: white;
+}
+

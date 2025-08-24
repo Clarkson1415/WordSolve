@@ -1,7 +1,6 @@
 package com.example.wordsolve;
 
 import javafx.animation.SequentialTransition;
-import javafx.animation.Transition;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -12,6 +11,7 @@ import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.Random;
 
+/// Single class that controls the level view.
 public class MainController {
 
     @FXML
@@ -47,7 +47,7 @@ public class MainController {
     private ArrayList<Tile> tiles = new ArrayList<>();
 
     /// Redraws remaining in this level
-    private int redrawsRemaining = 4;
+    private static int redrawsRemaining = 4;
 
     /// Redraws the play starts with at the start of a run. This never changes.
     private final int defaultRedrawAmount = 4;
@@ -56,7 +56,7 @@ public class MainController {
     private int redrawModifier;
 
     /// Word plays remaining in this level
-    private int wordPlaysRemaining = 4;
+    private static int wordPlaysRemaining = 4;
 
     /// Redraws the play starts with at the start of a run. This never changes.
     private final int defaultWordPlays = 4;
@@ -73,19 +73,45 @@ public class MainController {
     /// Number of tiles that the 'hand' is increased by.
     private int handTilesModifier = 0;
 
+    /// Scored from this hand.
+    private int rawScorePoints = 0;
+
+    /// Scored within the round.
     private int roundScorePoints = 0;
 
     /// Will be the level score to beat to win level.
-    private int scoreRequiredToWin = 0;
+    private static int scoreRequiredToWin = 0;
 
     @FXML
     private Label scoreToBeatText;
 
-    DatabaseConnection database;
+    private static DatabaseConnection database;
+
+    /// Players money. TODO: make static player class 1 player.
+    private static int playersMoney = 2;
+
+    public static int getPlayersMoney()
+    {
+        return playersMoney;
+    }
+
+    /// Singleton
+    private static MainController instance;
+
+    public static MainController GetInstance()
+    {
+        return instance;
+    }
 
     @FXML
     public void initialize()
     {
+        instance = this;
+        // TODO: will this be called again if the scene root changes back to this page? NO it will not run aagin.
+        // Only if reload.
+        // FXMLLoader loader = new FXMLLoader(getClass().getResource("main-view.fxml"));
+        // Parent levelParent = loader.load();  // new object
+
         System.out.println("Initialsed");
         rowToHoldSelectedTiles.initialiseSlots(this.defaultHandTiles);
         setupLevel();
@@ -94,7 +120,7 @@ public class MainController {
         this.pane.getChildren().add(particleEffectLayer);
         particleEffectLayer.setMouseTransparent(true);
 
-        this.IncrementScoreToBeat(50);
+        this.IncrementScoreToBeat(2);
 
         // https://github.com/CloudBytes-Academy/English-Dictionary-Open-Source?
         database = new DatabaseConnection();
@@ -112,34 +138,32 @@ public class MainController {
     {
         // If tile in row of letters and clicked on again remove
         // else if tile is to be added check if space and then add.
-
-        if (this.rowToHoldSelectedTiles.IsTileAlreadyAdded(tilePressed))
+        if (rowToHoldSelectedTiles.IsTileAlreadyAdded(tilePressed))
         {
-            this.rowToHoldSelectedTiles.RemoveTile(tilePressed);
-            this.tileRow.getChildren().add(tilePressed);
+            rowToHoldSelectedTiles.RemoveTile(tilePressed);
+            tileRow.getChildren().add(tilePressed);
         }
-        else if (this.rowToHoldSelectedTiles.HasSpaceForAnotherLetter())
+        else if (rowToHoldSelectedTiles.HasSpaceForAnotherLetter())
         {
-            this.tileRow.getChildren().remove(tilePressed);
-            this.rowToHoldSelectedTiles.AddTile(tilePressed);
+            tileRow.getChildren().remove(tilePressed);
+            rowToHoldSelectedTiles.AddTile(tilePressed);
         }
 
         ParticleEffects.ShowDustEffect(tilePressed);
 
-        System.out.println("current word = " + this.rowToHoldSelectedTiles.getCurrentWord());
+        System.out.println("current word = " + rowToHoldSelectedTiles.getCurrentWord());
         UpdatePlayButton();
         UpdateRedrawButton();
     }
 
     private boolean isWordValid()
     {
-        // TODO implement SQL dictionary here.
         var isWordInDictionary = false;
 
         // TODO cleanup. also add a little UI to show errors if found.
         try
         {
-            isWordInDictionary = this.database.CheckWordExists(rowToHoldSelectedTiles.getCurrentWord());
+            isWordInDictionary = database.CheckWordExists(rowToHoldSelectedTiles.getCurrentWord());
         }
         catch (Exception e)
         {
@@ -150,7 +174,7 @@ public class MainController {
         {
             try
             {
-                var definition = this.database.GetWordDefinition(rowToHoldSelectedTiles.getCurrentWord());
+                var definition = database.GetWordDefinition(rowToHoldSelectedTiles.getCurrentWord());
                 System.out.println(definition);
             }
             catch (Exception e){
@@ -158,7 +182,7 @@ public class MainController {
             }
         }
 
-        var isWordEmpty = this.rowToHoldSelectedTiles.getCurrentWord().isEmpty();
+        var isWordEmpty = rowToHoldSelectedTiles.getCurrentWord().isEmpty();
         return !isWordEmpty && isWordInDictionary;
     }
 
@@ -208,6 +232,13 @@ public class MainController {
         st.play();
     }
 
+    /// Called when shop next level button has been clicked and the level scene is now active.
+    public void StartNewLevel()
+    {
+        IncrementScoreToBeat(2);
+        RefillHand();
+    }
+
     /// Happens after letter tiles and jokers have been applied to the score. This will be the raw score getting
     /// added to the current Level score.
     private void OnWordAndJokerScoringFinished()
@@ -219,8 +250,12 @@ public class MainController {
         {
             // Won
             System.out.println("Won");
-            IncrementScoreToBeat(50);
-            RefillHand();
+
+            // TODO: do we want to increase money the same way as balatro.
+            playersMoney += this.wordPlaysRemaining;
+            System.out.printf("increased money by word plays remaining +%d", this.wordPlaysRemaining);
+
+            WordSolveApplication.SwitchToShopScene();
             return;
         }
 
@@ -231,30 +266,25 @@ public class MainController {
         }
 
         // if not won or lost continue next turn.
+        System.out.println("continue");
         RefillHand();
     }
 
     private void IncrementScoreToBeat(int amount)
     {
-        this.scoreRequiredToWin += amount;
-        this.scoreToBeatText.setText(String.format("Score to beat %d", this.scoreRequiredToWin));
+        scoreRequiredToWin += amount;
+        scoreToBeatText.setText(String.format("Score to beat %d", scoreRequiredToWin));
     }
 
     private void RefillHand()
     {
-        this.drawNewTiles(this.rowToHoldSelectedTiles.getCurrentWord().length());
-        this.rowToHoldSelectedTiles.clearTiles();
+        drawNewTiles(rowToHoldSelectedTiles.getCurrentWord().length());
+        rowToHoldSelectedTiles.clearTiles();
         UpdatePlayButton();
         UpdateRedrawButton();
     }
 
-
-    private void CheckLevelConditions()
-    {
-
-    }
-
-    private final Random random = new Random();
+    private static final Random random = new Random();
 
     private void drawNewTiles(int numNewTiles)
     {
@@ -291,19 +321,17 @@ public class MainController {
     private void UpdateRedrawButton()
     {
         redrawButton.setText(String.format("Redraws remaining %d", redrawsRemaining));
-        var redrawActive = this.redrawsRemaining > 0 && !this.rowToHoldSelectedTiles.getCurrentWord().isEmpty();
-        this.redrawButton.setDisable(!redrawActive);
+        var redrawActive = redrawsRemaining > 0 && !rowToHoldSelectedTiles.getCurrentWord().isEmpty();
+        redrawButton.setDisable(!redrawActive);
     }
 
     private void UpdatePlayButton()
     {
-        this.playButton.setText(String.format("Play Word. %d remaining", this.wordPlaysRemaining));
-        var playButtonActive = this.wordPlaysRemaining > 0 && !this.rowToHoldSelectedTiles.getCurrentWord().isEmpty();
+        playButton.setText(String.format("Play Word. %d remaining", wordPlaysRemaining));
+        var playButtonActive = wordPlaysRemaining > 0 && !rowToHoldSelectedTiles.getCurrentWord().isEmpty();
         playButtonActive = playButtonActive && isWordValid();
-        this.playButton.setDisable(!playButtonActive);
+        playButton.setDisable(!playButtonActive);
     }
-
-    private int rawScorePoints = 0;
 
     private void AddToRawScorePoints(int add)
     {
