@@ -68,3 +68,43 @@
     -fx-text-fill: white;
 }
 
+.boon-container {
+   -fx-orientation: horizontal;
+   -fx-border-color: red;
+   -fx-background-color: lightgray;
+   -fx-pref-width: 600px;
+   -fx-pref-height: 150px;
+   -fx-min-width: 600px;
+   -fx-min-height: 150px;
+   -fx-max-width: 600px;
+   -fx-max-height: 150px;
+
+    /* center the children horizontally and vertically */
+    -fx-alignment: center;
+}
+
+.shop-item-tile {
+    -fx-background-color: lightblue;
+    -fx-background-radius: 5;
+    -fx-border-color: darkblue;
+    -fx-border-radius: 5;
+    -fx-border-width: 1;
+}
+
+.shop-item-name-label {
+    -fx-font-family: "Arial";
+    -fx-font-weight: bold;
+    -fx-font-size: 10px;
+    -fx-text-fill: darkblue;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+
+.shop-item-tooltip-label{
+    -fx-font-family: "Arial";
+    -fx-font-weight: bold;
+    -fx-font-size: 10px;
+    -fx-text-fill: darkblue;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}

@@ -9,26 +9,31 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.geometry.Insets?>
 <?import org.controlsfx.dialog.WizardPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.Pane?>
 <StackPane styleClass="background-scene" fx:id="pane" xmlns="http://javafx.com/javafx/8.0.171"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.example.wordsolve.controllers.MainController">
 
+    <Pane fx:id="tooltipsPane" pickOnBounds="false"
+          StackPane.alignment="TOP_LEFT"/>
+
     <!-- Points to beat -->
-    <Label fx:id="scoreToBeatText" styleClass="score" StackPane.alignment="TOP_LEFT">
+    <Label fx:id="scoreToBeatText" mouseTransparent="true" styleClass="score" StackPane.alignment="TOP_LEFT">
         <StackPane.margin>
             <Insets top="10" left="15" right="0" bottom="0"/>
         </StackPane.margin>
     </Label>
 
     <!-- money -->
-    <Label fx:id="moneyLabel" styleClass="score" StackPane.alignment="TOP_RIGHT">
+    <Label fx:id="moneyLabel" mouseTransparent="true" styleClass="score" StackPane.alignment="TOP_RIGHT">
         <StackPane.margin>
             <Insets top="10" left="0" right="15" bottom="0"/>
         </StackPane.margin>
     </Label>
 
     <!-- Score -->
-    <VBox StackPane.alignment="CENTER_LEFT" alignment="CENTER_LEFT">
+    <VBox mouseTransparent="true" StackPane.alignment="CENTER_LEFT" alignment="CENTER_LEFT">
         <StackPane.margin>
             <Insets top="10" left="15" right="0" bottom="0"/>
         </StackPane.margin>
@@ -37,23 +42,22 @@
         </Label>
 
         <HBox>
-            <Label fx:id="rawScoreText" text="0" styleClass="score" >
+            <Label fx:id="handScoreText" text="0" styleClass="score" >
             </Label>
 
             <Label text=" x " styleClass="score" >
             </Label>
 
-            <Label  text="1" styleClass="score" >
+            <Label fx:id="handScoreMultiplierText" text="1" styleClass="score" >
             </Label>
         </HBox>
     </VBox>
 
+
+
     <!-- StackPane.alignment="CENTER" controls the alignment of the VBox -->
     <!-- alignment="CENTER" controls the alignment of the children inside the layout element. In this case the VBox's buttons. -->
     <VBox spacing="50" StackPane.alignment="CENTER" alignment="CENTER">
-
-        <!-- The players Boons -->
-
         <!-- Row to hold selected tiles before being played. -->
         <TileSlotRowHBox fx:id="rowToHoldSelectedTiles" spacing="10" StackPane.alignment="CENTER" alignment="CENTER">
         </TileSlotRowHBox>
@@ -69,5 +73,12 @@
             <Button text="Redraw" fx:id="redrawButton" onAction="#OnRedrawButtonClicked" styleClass="game-button"/>
         </HBox>
     </VBox>
+
+    <!-- The players Boons -->
+    <FlowPane fx:id="boonsContainer" styleClass="boon-container" StackPane.alignment="TOP_CENTER" alignment="TOP_CENTER">
+        <StackPane.margin>
+            <Insets top="50"/>
+        </StackPane.margin>
+    </FlowPane>
 
 </StackPane>

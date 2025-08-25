@@ -1,5 +1,6 @@
 package com.example.wordsolve;
 
+import com.example.wordsolve.controllers.IWordSolveController;
 import com.example.wordsolve.controllers.MainController;
 import com.example.wordsolve.controllers.ShopController;
 import javafx.application.Application;
@@ -24,9 +25,32 @@ public class WordSolveApplication extends Application
 
     private Scene currentScene;
 
+    private static Stage mainStage;
+
+    private IWordSolveController currentController;
+
+    public static Stage getMainStage()
+    {
+        return mainStage;
+    }
+
+    private static WordSolveApplication instance;
+
+    public static WordSolveApplication getInstance()
+    {
+        return instance;
+    }
+
+    public IWordSolveController getCurrentController()
+    {
+        return currentController;
+    }
+
     @Override
     public void start(Stage stage) throws IOException
     {
+        instance = this;
+
         // Load level scene
         FXMLLoader levelLoader = new FXMLLoader(getClass().getResource("main-view.fxml"));
         Pane mainViewPane = levelLoader.load();
@@ -46,10 +70,12 @@ public class WordSolveApplication extends Application
 
         // Setup stage
         currentScene = levelScene;
-        stage.setTitle("EG Top Window Title.");
-        stage.setScene(levelScene);
-        stage.setFullScreen(true);
-        stage.show();
+
+        mainStage = stage;
+        mainStage.setTitle("EG Top Window Title.");
+        mainStage.setScene(levelScene);
+        mainStage.setFullScreen(true);
+        mainStage.show();
 
         // Store reference to already loaded parent
         levelParent = mainViewPane;
@@ -63,6 +89,8 @@ public class WordSolveApplication extends Application
         if (shopController != null) {
             shopController.injectApplication(this);
         }
+
+        currentController = levelController;
     }
 
     private ShopController shopController;
@@ -73,12 +101,14 @@ public class WordSolveApplication extends Application
     {
         this.currentScene.setRoot(shopParent);
         this.shopController.RefreshShop();
+        currentController = shopController;
     }
 
     public void ChangeToLevelScene()
     {
         this.currentScene.setRoot(levelParent);
         this.levelController.StartNewLevel();
+        currentController = levelController;
     }
 
     public static void main(String[] args) {

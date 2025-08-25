@@ -2,31 +2,37 @@
 <?import javafx.scene.layout.StackPane?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.Pane?>
 <StackPane styleClass="background-scene" fx:id="pane" xmlns="http://javafx.com/javafx/8.0.171"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.example.wordsolve.controllers.ShopController">
 
-    <!-- Shop heading -->
-    <Label text="Shop" styleClass="shop-heading" StackPane.alignment="TOP_CENTER">
+    <Pane fx:id="tooltipsPane" pickOnBounds="false"
+          StackPane.alignment="TOP_LEFT"/>
+
+    <!-- The players Boons -->
+    <FlowPane fx:id="boonsContainer" styleClass="boon-container" StackPane.alignment="TOP_CENTER" alignment="TOP_CENTER">
         <StackPane.margin>
-            <Insets top="100" left="0" right="0" bottom="0"/>
+            <Insets top="50"/>
+        </StackPane.margin>
+    </FlowPane>
+
+    <!-- Shop heading -->
+    <Label text="Shop" mouseTransparent="true" styleClass="shop-heading" StackPane.alignment="TOP_CENTER">
+        <StackPane.margin>
+            <Insets top="200" left="0" right="0" bottom="0"/>
         </StackPane.margin>
     </Label>
 
     <!-- money -->
-    <Label fx:id="moneyLabel" styleClass="score" StackPane.alignment="TOP_RIGHT">
+    <Label fx:id="moneyLabel" mouseTransparent="true" styleClass="score" StackPane.alignment="TOP_RIGHT">
         <StackPane.margin>
             <Insets top="10" left="0" right="15" bottom="0"/>
         </StackPane.margin>
     </Label>
-
-    <!-- StackPane.alignment="CENTER" controls the alignment of the VBox -->
-    <!-- alignment="CENTER" controls the alignment of the children inside the layout element. In this case the VBox's buttons. -->
-    <VBox spacing="50" StackPane.alignment="CENTER" alignment="CENTER">
-    </VBox>
 
     <Button fx:id="nextLevelButton" onAction="#OnNextLevelClick" text="Next Round" styleClass="game-button" StackPane.alignment="BOTTOM_CENTER">
         <StackPane.margin>

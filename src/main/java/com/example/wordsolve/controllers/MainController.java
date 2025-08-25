@@ -3,12 +3,14 @@ package com.example.wordsolve.controllers;
 import com.example.wordsolve.*;
 import javafx.animation.SequentialTransition;
 import javafx.animation.TranslateTransition;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.util.Duration;
 
+import javax.swing.plaf.DimensionUIResource;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -19,10 +21,14 @@ public class MainController implements IWordSolveController
     private Label moneyLabel;
 
     @FXML
-    private StackPane pane;  // match fx:id in your FXML
+    /// Container to display active items/upgrades
+    private FlowPane boonsContainer;
 
     @FXML
-    private Pane particleEffectLayer;
+    private StackPane pane;
+
+    @FXML
+    private Pane tooltipsPane;
 
     @FXML
     /// Row for the players letter tiles in hand.
@@ -39,7 +45,10 @@ public class MainController implements IWordSolveController
     private Button redrawButton;
 
     @FXML
-    private Label rawScoreText;
+    private Label handScoreText;
+
+    @FXML
+    private Label handScoreMultiplierText;
 
     @FXML
     private Label roundScoreText;
@@ -78,7 +87,10 @@ public class MainController implements IWordSolveController
     private int handTilesModifier = 0;
 
     /// Scored from this hand.
-    private int rawScorePoints = 0;
+    private int handScorePoints = 0;
+
+    /// Score multiplier for the current hand score being scored.
+    private int handScoreMultiplier = 1;
 
     /// Scored within the round.
     private int roundScorePoints = 0;
@@ -91,27 +103,17 @@ public class MainController implements IWordSolveController
 
     private static DatabaseConnection database;
 
-    /// Players money. TODO: make static player class 1 player.
-    private static int playersMoney = 2;
+    private GameState globalGameState;
 
-    /// TODO go into static player class?
-    public static int getPlayersMoney()
+    @Override
+    public Pane getTooltipPane()
     {
-        return playersMoney;
-    }
-
-    /// Singleton
-    private static MainController instance;
-
-    public static MainController GetInstance()
-    {
-        return instance;
+        return this.tooltipsPane;
     }
 
     @FXML
     public void initialize()
     {
-        instance = this;
         // TODO: will this be called again if the scene root changes back to this page? NO it will not run aagin.
         // Only if reload.
         // FXMLLoader loader = new FXMLLoader(getClass().getResource("main-view.fxml"));
@@ -121,27 +123,35 @@ public class MainController implements IWordSolveController
         rowToHoldSelectedTiles.initialiseSlots(this.defaultHandTiles);
         setupLevel();
 
-        particleEffectLayer = new Pane();
-        this.pane.getChildren().add(particleEffectLayer);
-        particleEffectLayer.setMouseTransparent(true);
-
         this.IncrementScoreToBeat(2);
 
         // https://github.com/CloudBytes-Academy/English-Dictionary-Open-Source?
         database = new DatabaseConnection();
 
-        try{
+        try
+        {
             database.testConnection();
         }
         catch (Exception e)
         {
             System.out.println("issue with db");
         }
-    }
 
-    private void UpdateMoneyLabel()
-    {
-        moneyLabel.setText(String.format("Money: %d $", playersMoney));
+        globalGameState = GameState.getInstance();
+
+        // Bind the money label to the shared model
+        moneyLabel.textProperty().bind(this.globalGameState.getBindableString());
+
+        // Listen for changes to player's items and update UI reactively
+        globalGameState.getPlayersItems().addListener((ListChangeListener<ShopItem>) change -> {
+            globalGameState.updateItemsUI(this.boonsContainer); // Always refresh entire UI - simpler and more reliable
+        });
+
+        // Trigger initial UI update
+        globalGameState.updateItemsUI(this.boonsContainer);
+
+        tooltipsPane.prefWidthProperty().bind(pane.widthProperty());
+        tooltipsPane.prefHeightProperty().bind(pane.heightProperty());
     }
 
     private void OnTilePressed(Tile tilePressed)
@@ -219,7 +229,7 @@ public class MainController implements IWordSolveController
             // TODO: +x score amount nice UI on the scorer thing like in balatro. Update score (can also hook into tt
             //  .setOnFinished if you want delay). Will do so ui is updated after each tile popup anim.
             // Update score count after the tile animation has finished.
-            tt.setOnFinished(e -> AddToRawScorePoints(t.getTileScore()));
+            tt.setOnFinished(e -> addToHandScorePoints(t.getTileScore()));
         }
 
         // time delay between tiles finished scoring and the jokers being scored so user has time to like take in
@@ -227,18 +237,28 @@ public class MainController implements IWordSolveController
         var smallTimeDelay = new TranslateTransition(Duration.seconds(1));
         tilePopupTransitions.getChildren().add(smallTimeDelay);
 
-        tilePopupTransitions.setOnFinished(e -> ScoreJokers());
+        tilePopupTransitions.setOnFinished(e -> ScorePlayersUpgrades());
         // Play all transitions in order
         tilePopupTransitions.play();
     }
 
-    private void ScoreJokers()
+    /// Adds any special multipliers from the players items to the score.
+    private void ScorePlayersUpgrades()
     {
         SequentialTransition st = new SequentialTransition();
 
-        // For ()
-        // for each joker add to sequence animation then play animtion
-        st.setOnFinished(e -> OnWordAndJokerScoringFinished());
+        for (var item: this.globalGameState.getPlayersItems())
+        {
+            var newTransition = new TranslateTransition(Duration.seconds(1));
+
+            /// TODO add transition for animating the joker cards
+            System.out.printf("player item: %s ... wait for transition (todo)", item.getName());
+            this.addToHandScoreMultiplier(item.getMultiplier());
+
+            st.getChildren().add(newTransition);
+        }
+
+        st.setOnFinished(e -> OnAllScoringFinished());
         st.play();
     }
 
@@ -249,12 +269,11 @@ public class MainController implements IWordSolveController
         RefillHand();
     }
 
-    /// Happens after letter tiles and jokers have been applied to the score. This will be the raw score getting
-    /// added to the current Level score.
-    private void OnWordAndJokerScoringFinished()
+    /// Happens after letter tiles and jokers have been applied to the score. Addss the raw word score to the round
+    /// score.
+    private void OnAllScoringFinished()
     {
-        AddToRoundScore(this.rawScorePoints);
-        this.rawScorePoints = 0;
+        addToRoundScore(this.handScorePoints * this.handScoreMultiplier);
 
         if (this.roundScorePoints >= scoreRequiredToWin)
         {
@@ -262,12 +281,14 @@ public class MainController implements IWordSolveController
             System.out.println("Won");
 
             // TODO: do we want to increase money the same way as balatro.
-            playersMoney += this.wordPlaysRemaining;
-            UpdateMoneyLabel();
-
+            this.globalGameState.addMoney(this.wordPlaysRemaining);
             System.out.printf("increased money by word plays remaining +%d", this.wordPlaysRemaining);
 
             this.application.ChangeToShop();
+
+            System.out.printf("(TESTING) added shop item double trouble. should appear on screen text.");
+            this.globalGameState.addItem(this.boonsContainer, ShopItems.getItemList().getFirst());
+
             return;
         }
 
@@ -319,7 +340,8 @@ public class MainController implements IWordSolveController
     /// Called on every new level loaded.
     private void setupLevel()
     {
-        UpdateMoneyLabel();
+        this.roundScorePoints = 0;
+        this.addToRoundScore(0);
         drawNewTiles(this.defaultHandTiles + this.handTilesModifier);
 
         // reset redraws
@@ -346,20 +368,29 @@ public class MainController implements IWordSolveController
         playButton.setDisable(!playButtonActive);
     }
 
-    private void AddToRawScorePoints(int add)
+    private void addToHandScorePoints(int add)
     {
-        this.rawScorePoints += add;
-        this.rawScoreText.setText(String.format("%d", this.rawScorePoints));
+        this.handScorePoints += add;
+        this.handScoreText.setText(String.format("%d", this.handScorePoints));
     }
 
-    private void AddToRoundScore(int add)
+    private void addToHandScoreMultiplier(int add)
+    {
+        this.handScoreMultiplier += add;
+        this.handScoreMultiplierText.setText(String.format("%d", this.handScoreMultiplier));
+    }
+
+    private void addToRoundScore(int add)
     {
         this.roundScorePoints += add;
         this.roundScoreText.setText(String.format("Round Score: %d", this.roundScorePoints));
 
         // Reset the word play score back to 0 for the next turn.
-        this.rawScorePoints = 0;
-        this.rawScoreText.setText(String.format("%d", this.rawScorePoints));
+        this.handScorePoints = 0;
+        this.handScoreText.setText(String.format("%d", this.handScorePoints));
+
+        this.handScoreMultiplier = 1;
+        this.handScoreMultiplierText.setText(String.format("%d", this.handScoreMultiplier));
     }
 
     @FXML
