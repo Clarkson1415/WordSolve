@@ -26,6 +26,11 @@ public class ShopItem
         this.multiplier = additionalMultiplier;
     }
 
+    public void setName(String name)
+    {
+        this.itemName = name;
+    }
+
     public String getName()
     {
         return itemName;
