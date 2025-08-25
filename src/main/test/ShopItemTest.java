@@ -14,4 +14,13 @@ public class ShopItemTest
         ShopItem shopItem1 = new ShopItem("double", 1, 0, 1);
         assertEquals("double", shopItem1.getName());
     }
+
+    @Test
+    public void testSetName()
+    {
+        ShopItem shopItem1 = new ShopItem("double", 1, 0, 1);
+
+        shopItem1.setName("nameSet");
+        assertEquals("nameSet", shopItem1.getName());
+    }
 }
