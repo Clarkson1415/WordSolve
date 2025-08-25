@@ -57,21 +57,16 @@ public class ShopItem
         tooltip.setShowDelay(javafx.util.Duration.ZERO); // show immediately
         Tooltip.install(tile, tooltip);
 
-        // Add hover events.
         tile.setOnMouseEntered(e ->
         {
-            //tooltip.show(tile, e.getScreenX() + offsetX, e.getScreenY() - (tooltip.getHeight() - (tooltip.getHeight()/4)));
-
-//            tile.setScaleX(1.05);
-//            tile.setScaleY(1.05);
+            tile.setScaleX(1.05);
+            tile.setScaleY(1.05);
         });
 
         tile.setOnMouseExited(e ->
         {
-            // tooltip.hide();
-
-//            tile.setScaleX(1.0);
-//            tile.setScaleY(1.0);
+            tile.setScaleX(1.0);
+            tile.setScaleY(1.0);
         });
 
 //        tile.setOnMouseMoved(e -> {
