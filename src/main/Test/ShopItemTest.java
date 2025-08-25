@@ -9,6 +9,7 @@ public class ShopItemTest
     @Test
     public void testGetName()
     {
+        // test
         Assertions.fail("for testing");
 
         ShopItem shopItem1 = new ShopItem("double", 1, 0, 1);
