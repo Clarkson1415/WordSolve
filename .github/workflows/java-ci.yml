@@ -20,8 +20,11 @@ jobs:
           distribution: 'corretto'
           cache: maven
 
-      - name: Build and Test with Maven
+      - name: Build and run tests
         run: mvn clean verify
+
+      - name: List test reports
+        run: ls -l target/surefire-reports/
 
       - name: Report
         uses: dorny/test-reporter@v1
