@@ -17,4 +17,6 @@ module com.example.wordsolve {
 
     opens com.example.wordsolve to javafx.fxml;
     exports com.example.wordsolve;
+    exports com.example.wordsolve.controllers;
+    opens com.example.wordsolve.controllers to javafx.fxml;
 }

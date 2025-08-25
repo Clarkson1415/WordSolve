@@ -1,5 +1,6 @@
-package com.example.wordsolve;
+package com.example.wordsolve.controllers;
 
+import com.example.wordsolve.*;
 import javafx.animation.SequentialTransition;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
@@ -12,7 +13,10 @@ import java.util.ArrayList;
 import java.util.Random;
 
 /// Single class that controls the level view.
-public class MainController {
+public class MainController implements IWordSolveController
+{
+    @FXML
+    private Label moneyLabel;
 
     @FXML
     private StackPane pane;  // match fx:id in your FXML
@@ -90,6 +94,7 @@ public class MainController {
     /// Players money. TODO: make static player class 1 player.
     private static int playersMoney = 2;
 
+    /// TODO go into static player class?
     public static int getPlayersMoney()
     {
         return playersMoney;
@@ -132,6 +137,11 @@ public class MainController {
         {
             System.out.println("issue with db");
         }
+    }
+
+    private void UpdateMoneyLabel()
+    {
+        moneyLabel.setText(String.format("Money: %d $", playersMoney));
     }
 
     private void OnTilePressed(Tile tilePressed)
@@ -246,16 +256,18 @@ public class MainController {
         AddToRoundScore(this.rawScorePoints);
         this.rawScorePoints = 0;
 
-        if (this.roundScorePoints > scoreRequiredToWin)
+        if (this.roundScorePoints >= scoreRequiredToWin)
         {
             // Won
             System.out.println("Won");
 
             // TODO: do we want to increase money the same way as balatro.
             playersMoney += this.wordPlaysRemaining;
+            UpdateMoneyLabel();
+
             System.out.printf("increased money by word plays remaining +%d", this.wordPlaysRemaining);
 
-            WordSolveApplication.SwitchToShopScene();
+            this.application.ChangeToShop();
             return;
         }
 
@@ -307,6 +319,7 @@ public class MainController {
     /// Called on every new level loaded.
     private void setupLevel()
     {
+        UpdateMoneyLabel();
         drawNewTiles(this.defaultHandTiles + this.handTilesModifier);
 
         // reset redraws
@@ -363,5 +376,13 @@ public class MainController {
         var numberOfTilesToRedraw = this.rowToHoldSelectedTiles.getCurrentWord().length();
         this.rowToHoldSelectedTiles.clearTiles();
         this.drawNewTiles(numberOfTilesToRedraw);
+    }
+
+    WordSolveApplication application;
+
+    @Override
+    public void injectApplication(WordSolveApplication app)
+    {
+        application = app;
     }
 }

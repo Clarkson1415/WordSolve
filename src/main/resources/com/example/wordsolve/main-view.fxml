@@ -11,12 +11,19 @@
 <?import org.controlsfx.dialog.WizardPane?>
 <StackPane styleClass="background-scene" fx:id="pane" xmlns="http://javafx.com/javafx/8.0.171"
            xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.example.wordsolve.MainController">
+           fx:controller="com.example.wordsolve.controllers.MainController">
 
     <!-- Points to beat -->
     <Label fx:id="scoreToBeatText" styleClass="score" StackPane.alignment="TOP_LEFT">
         <StackPane.margin>
             <Insets top="10" left="15" right="0" bottom="0"/>
+        </StackPane.margin>
+    </Label>
+
+    <!-- money -->
+    <Label fx:id="moneyLabel" styleClass="score" StackPane.alignment="TOP_RIGHT">
+        <StackPane.margin>
+            <Insets top="10" left="0" right="15" bottom="0"/>
         </StackPane.margin>
     </Label>
 
