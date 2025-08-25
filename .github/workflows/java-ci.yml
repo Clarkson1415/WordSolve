@@ -21,6 +21,13 @@ jobs:
           cache: maven
 
       - name: Build and run tests
+        run: mvn clean test
+
+      # Debug: check compiled test classes
+      - name: List target contents
+        run: ls -R target || echo "No target directory found"
+
+      - name: Build and run tests
         run: mvn clean verify
 
       - name: List test reports
